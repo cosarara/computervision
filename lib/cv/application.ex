@@ -14,9 +14,12 @@ defmodule Cv.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Cv.PubSub},
       # Start the Endpoint (http/https)
-      CvWeb.Endpoint
+      CvWeb.Endpoint,
       # Start a worker by calling: Cv.Worker.start_link(arg)
       # {Cv.Worker, arg}
+      # image service thing
+      #{Cv.ImageServer, name: Cv.ImageServer}
+      Cv.ImageServer,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

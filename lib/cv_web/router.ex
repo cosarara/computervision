@@ -17,6 +17,14 @@ defmodule CvWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    post "/submit", PageController, :submit
+    get "/submit", PageController, :submit
+    get "/submitted", PageController, :submitted
+    get "/get", PageController, :get
+    get "/out", PageController, :out
+
+    #resources "/users", UserController
   end
 
   # Other scopes may use custom stacks.

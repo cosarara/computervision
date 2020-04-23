@@ -1,0 +1,8 @@
+<div>Submitted!</div>
+<style>
+img { float: left; width: 300px; }
+</style>
+<img alt="submitted image"
+     src="<%= Routes.page_path(@conn, :get) %>">
+<img alt="submitted image"
+     src="<%= Routes.page_path(@conn, :out) %>">
