@@ -24,7 +24,6 @@ defmodule CvWeb.PageController do
 
   def get(conn, _params) do
     file = Cv.ImageServer.get()
-    #IO.inspect file.data
     conn = put_resp_content_type(conn, file.mime)
     resp(conn, 200, file.data)
   end
