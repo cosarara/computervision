@@ -1,0 +1,30 @@
+<h1>Listing Methods</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Url</th>
+      <th>Version</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for method <- @methods do %>
+    <tr>
+      <td><%= method.name %></td>
+      <td><%= method.url %></td>
+      <td><%= method.version %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.method_path(@conn, :show, method) %></span>
+        <span><%= link "Edit", to: Routes.method_path(@conn, :edit, method) %></span>
+        <span><%= link "Delete", to: Routes.method_path(@conn, :delete, method), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Method", to: Routes.method_path(@conn, :new) %></span>

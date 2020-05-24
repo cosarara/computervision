@@ -2,6 +2,12 @@
   <h1><%= gettext "Welcome to %{name}!", name: "CVaaS" %></h1>
 </section>
 
+<style>
+input[type=checkbox] {
+  margin-right: 8px;
+}
+</style>
+
 <!--
 <form method="POST" action="submit">
   <div>
@@ -21,7 +27,17 @@
 <%= form_for @conn, Routes.page_path(@conn, :submit), [multipart: true], fn f -> %>
   <div>
   <%= label f, :image, gettext("Choose an image file") %>
-  <%= file_input f, :image, [accept: "image/png, image/jpeg"] %>
+  <%= file_input f, :image, [accept: "image/png, image/jpeg", required: true] %>
+  </div>
+  <div>
+    <label>
+  <%= checkbox f, :terms, [value: @terms, required: true] %>
+  <%= gettext("I agree to the Terms and Conditions TODO [3rd party, etc.]") %>
+    </label>
+    <label>
+  <%= checkbox f, :allow_use, [value: @allow_use] %>
+  <%= gettext("Let my image be used for future AI training") %>
+    </label>
   </div>
   <%= submit "Submit" %>
 <% end %>

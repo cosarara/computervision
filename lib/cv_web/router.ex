@@ -22,9 +22,9 @@ defmodule CvWeb.Router do
     get "/submit", PageController, :submit
     get "/submitted", PageController, :submitted
     get "/get", PageController, :get
-    get "/out", PageController, :out
+    get "/out/:id", PageController, :out
 
-    #resources "/users", UserController
+    resources "/methods", MethodController
   end
 
   # Other scopes may use custom stacks.

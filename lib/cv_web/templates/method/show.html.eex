@@ -1,0 +1,23 @@
+<h1>Show Method</h1>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @method.name %>
+  </li>
+
+  <li>
+    <strong>Url:</strong>
+    <%= @method.url %>
+  </li>
+
+  <li>
+    <strong>Version:</strong>
+    <%= @method.version %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.method_path(@conn, :edit, @method) %></span>
+<span><%= link "Back", to: Routes.method_path(@conn, :index) %></span>

@@ -3,6 +3,7 @@ defmodule CvWeb.UserSocket do
 
   ## Channels
   # channel "room:*", CvWeb.RoomChannel
+  channel "notification:*", CvWeb.NotificationChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
@@ -16,8 +17,13 @@ defmodule CvWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   @impl true
+  def connect(%{"token" => token}, socket, _connect_info) do
+    {:ok, user_id} = Phoenix.Token.verify(socket, "user auth", token, max_age: 86400)
+    {:ok, assign(socket, :user_id, user_id)}
+  end
+
   def connect(_params, socket, _connect_info) do
-    {:ok, socket}
+    {:error, socket}
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
@@ -31,5 +37,5 @@ defmodule CvWeb.UserSocket do
   #
   # Returning `nil` makes this socket anonymous.
   @impl true
-  def id(_socket), do: nil
+  def id(socket), do: "notification:#{socket.assigns.user_id}"
 end

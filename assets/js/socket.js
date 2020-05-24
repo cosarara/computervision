@@ -8,7 +8,7 @@
 // from the params if you are not using authentication.
 import {Socket} from "phoenix"
 
-let socket = new Socket("/socket", {params: {token: window.userToken}})
+//let socket = new Socket("/socket")
 
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
@@ -51,13 +51,28 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 //       end
 //     end
 //
-// Finally, connect to the socket:
-socket.connect()
 
-// Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("topic:subtopic", {})
-channel.join()
-  .receive("ok", resp => { console.log("Joined successfully", resp) })
-  .receive("error", resp => { console.log("Unable to join", resp) })
+let socket = null;
+if (window.uid_token) {
+    console.log(window.uid_token);
+    socket = new Socket("/socket", {params: {token: window.uid_token}})
+    // Finally, connect to the socket:
+    socket.connect()
+    socket.onMessage(() => console.log("message"))
+    socket.onClose(() => console.log("close"))
 
+    //let channel = socket.channel()
+
+    // Now that you are connected, you can join channels with a topic:
+    //let channel = socket.channel("notification:lobby", {})
+    let channel = socket.channel("notification:"+window.uid, {})
+    //let channel = socket.channel("user_socket:42", {})
+    channel.join()
+      .receive("ok", resp => { console.log("Joined successfully", resp) })
+      .receive("error", resp => { console.log("Unable to join", resp) })
+
+    channel.on("reload", payload => {
+        location.reload();
+    })
+}
 export default socket

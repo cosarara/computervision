@@ -23,6 +23,10 @@ defmodule Cv.ImageServer do
     GenServer.cast(__MODULE__, :process)
   end
 
+  def subscribe(id) do
+    GenServer.cast(__MODULE__, {:subscribe, id})
+  end
+
   # server
 
   @impl true
@@ -36,7 +40,13 @@ defmodule Cv.ImageServer do
     data = File.read!(upload.path)
     #case File.read upload.path do
     #  {:ok, body} ->
-    state = %{data: data, mime: upload.content_type, name: upload.filename}
+    state = %{data: data, mime: upload.content_type, name: upload.filename,
+      subscribed: nil,
+      out: %{},
+      methods: [
+        {:EAST, "http://127.0.0.1:4010/process"},
+        {:AdvancedEAST, "http://127.0.0.1:4011/process"}
+      ]}
     #GenServer.cast(__MODULE__, :process)
     {:reply, :ok, state}
   end
@@ -51,61 +61,35 @@ defmodule Cv.ImageServer do
     {:reply, :pong, state}
   end
 
-  #@impl true
-  #def handle_cast(:process, state) do
-  #  #{ret, status} = System.cmd()
-
-  #  task = Task.async(fn ->
-  #    Rambo.run("/home/jaume/Sync/proj/tfg/cores/EAST/wrapper.sh", in: state.data)
-  #    GenServer.cast(__MODULE__, :process)
-  #  end)
-  #  {:ok, rambo} = Task.await(task)
-  #  IO.inspect rambo
-  #  state = Map.put(state, :out, rambo.out)
-  #  {:noreply, state}
-  #end
+  @impl true
+  def handle_call({:process_end, method, response}, _from, state) do
+    %HTTPoison.Response{status_code: 200, body: resp_body} = response
+    %{"image" => image64, "mime" => mime} = Jason.decode!(resp_body)
+    image = Base.decode64!(image64)
+    state = put_in(state.out[method], {image, mime})
+    if state.subscribed do
+      CvWeb.Endpoint.broadcast("notification:#{state.subscribed}", "reload", %{})
+    end
+    {:reply, nil, state}
+  end
 
   @impl true
   def handle_cast(:process, state) do
-    #{ret, status} = System.cmd()
-    # desem en un fitxer temporal (si es pot evitar, millor)
-    #Temp.track!
-    #{:ok, file_path} = Temp.open %{suffix: state.name}, &IO.write(&1, state.data)
-    #HTTPoison.start # cal?
-    #resp = HTTPoison.post!("https://127.0.0.1:4010", {:multipart,
-    #  [{:file, file_path, {"form-data", [name: "file", filename: data.name]}, []},
-    #  {:thing, "hrm"}]})
-    #Temp.cleanup
-
     json = Jason.encode!(%{filename: state.name, image: Base.encode64(state.data)})
     headers = [{"Content-type", "application/json"}]
-    #resp = HTTPoison.post!("http://127.0.0.1:4010/process", json, headers, [recv_timeout: 60000])
-    #%HTTPoison.Response{status_code: 200, body: resp_body} = resp
-    #%{"image" => image64 "mime" => mime} = Jason.decode!(resp_body)
-    #image = Base.decode64!(image64)
-    #state = Map.put(state, :out, image)
-    #state = Map.put(state, :out_mime, mime)
 
-    task = Task.async(fn ->
-      resp = HTTPoison.post!("http://127.0.0.1:4011/process", json, headers, [recv_timeout: 60000])
-      GenServer.cast(__MODULE__, {:process_end, :EAST, resp})
-    end)
-
-    #task = Task.async(fn ->
-    #  {:ok, rambo} = Rambo.run("/home/jaume/Sync/proj/tfg/cores/EAST/wrapper.sh", in: state.data)
-    #  GenServer.cast(__MODULE__, {:process_end, rambo})
-    #end)
+    for {method, url} <- state.methods do
+      _task = Task.async(fn ->
+        resp = HTTPoison.post!(url, json, headers, [recv_timeout: 60000])
+        GenServer.call(__MODULE__, {:process_end, method, resp})
+      end)
+    end
     {:noreply, state}
   end
 
   @impl true
-  def handle_cast({:process_end, method, response}, state) do
-    #IO.inspect response
-    %HTTPoison.Response{status_code: 200, body: resp_body} = response
-    %{"image" => image64, "mime" => mime} = Jason.decode!(resp_body)
-    image = Base.decode64!(image64)
-    state = Map.put(state, :out, image)
-    state = Map.put(state, :out_mime, mime)
+  def handle_cast({:subscribe, id}, state) do
+    state = put_in(state.subscribed, id)
     {:noreply, state}
   end
 end
