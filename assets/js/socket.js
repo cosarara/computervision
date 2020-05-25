@@ -74,5 +74,18 @@ if (window.uid_token) {
     channel.on("reload", payload => {
         location.reload();
     })
+    channel.on("image", payload => {
+        console.log(payload);
+        var image = new Image();
+        image.src = `data:${payload.mime};base64,${payload.data}`;
+        image.alt = "processed image";
+        //let el = $(`.lds-spinner[data-method-name=${payload.method}]`);
+        let el = $(`.img-container[data-method-name=${payload.method}]`);
+        console.log(el);
+        //el.parent().find(".rating-wrapper").show();
+        el.find(".rating-wrapper").show();
+        //el.replaceWith(image);
+        el.find(".lds-spinner").replaceWith(image);
+    })
 }
 export default socket

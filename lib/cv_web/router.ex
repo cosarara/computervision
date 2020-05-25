@@ -23,6 +23,7 @@ defmodule CvWeb.Router do
     get "/submitted", PageController, :submitted
     get "/get", PageController, :get
     get "/out/:id", PageController, :out
+    post "/rate", PageController, :rate
 
     resources "/methods", MethodController
   end

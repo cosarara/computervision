@@ -8,7 +8,7 @@ defmodule CvWeb.NotificationChannel do
 
   @impl true
   def join("notification:"<>uid, _payload, socket) do
-    IO.inspect "a veure"
+    IO.inspect "new ws"
     IO.inspect socket.assigns.user_id
     if uid == to_string(socket.assigns.user_id) do
       {:ok, socket}

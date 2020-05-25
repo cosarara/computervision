@@ -90,18 +90,56 @@ img { width: 500px; display: block }
   <div>
     Submitted image:
     <img alt="submitted image"
+         class="submitted"
          src="<%= Routes.page_path(@conn, :get) %>">
   </div>
   <%= for {method, _url} <- @methods do %>
     <div>
       <%= method %>:
-      <%= if @ready[method] do %>
-        <img alt="processed image"
-             src="<%= Routes.page_path(@conn, :out, method) %>">
-           <% else %>
-             <%# (loading) %>
-<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-           <% end %>
+      <%= case @status[method] do %>
+        <% {:done} -> %>
+          <div style="display: flex;">
+            <img alt="processed image"
+                 src="<%= Routes.page_path(@conn, :out, method) %>">
+            <div style="padding: 10px;">
+              How good was it?
+              <div class="stars" data-method-name="<%= method %>" data-rating="<%= @ratings[method] || 0 %>"></div>
+            </div>
+          </div>
+        <% {:running} -> %>
+          <%# (loading) %>
+          <div class="img-container" data-method-name="<%= method %>" style="display: flex;">
+            <div class="lds-spinner" data-method-name="<%= method %>"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <div class="rating-wrapper" style="padding: 10px; display: none">
+              How good was it?
+              <div class="stars" data-method-name="<%= method %>" data-rating="<%= @ratings[method] || 0 %>"></div>
+            </div>
+          </div>
+        <% {:error, _e} -> %>
+          error
+        <% _ -> %>
+          missing
+      <% end %>
     </div>
   <% end %>
 </div>
+
+<script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/jquery-3.5.1.min.js") %>"></script>
+<script src="<%= Routes.static_path(@conn, "/js/jquery.star-rating-svg.js") %>"></script>
+<link rel="stylesheet" type="text/css" href="<%= Routes.static_path(@conn, "/css/star-rating-svg.css") %>">
+
+<script>
+  let csrf = $("meta[name='csrf-token']").attr("content");
+  $(".stars").starRating({
+    starSize: 25,
+    disableAfterRate: false,
+    callback: function(currentRating, $el){
+      //console.log($el);
+      //console.log($el.attr("data-method-name"));
+      let method = $el.data("method-name");
+      $.post("<%= Routes.page_path(@conn, :rate) %>",
+        {method: method, rating: currentRating, _csrf_token: csrf});
+    }
+  });
+  $(() => $(".lds-spinner").height($(".submitted").height()));
+</script>
