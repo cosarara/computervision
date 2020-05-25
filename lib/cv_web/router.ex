@@ -26,6 +26,8 @@ defmodule CvWeb.Router do
     post "/rate", PageController, :rate
 
     resources "/methods", MethodController
+    resources "/submissions", SubmissionController
+    get "/submissions/img/:id", SubmissionController, :img
   end
 
   # Other scopes may use custom stacks.

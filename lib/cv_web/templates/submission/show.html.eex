@@ -1,0 +1,27 @@
+<h1>Show Submission</h1>
+
+<ul>
+
+  <li>
+    <strong>ID:</strong>
+    <%= @submission.id %>
+  </li>
+
+  <li>
+    <strong>mime:</strong>
+    <%= @submission.mime %>
+  </li>
+
+  <li>
+    <strong>image:</strong>
+    <%= if @submission.image == nil do %>
+    This submission has no saved image
+    <% else %>
+      <%= img_tag(Routes.submission_path(@conn, :img, @submission), alt: "image") %>
+    <% end %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.submission_path(@conn, :edit, @submission) %></span>
+<span><%= link "Back", to: Routes.submission_path(@conn, :index) %></span>

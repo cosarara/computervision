@@ -1,6 +1,9 @@
 defmodule CvWeb.PageController do
   use CvWeb, :controller
 
+  alias Cv.Submissions
+  alias Cv.Submissions.Submission
+
   def index(conn, _params) do
     #IO.inspect Cv.ImageServer.ping()
     render(conn, "index.html",
@@ -43,7 +46,9 @@ defmodule CvWeb.PageController do
            |> put_session(:terms, "true")
            |> put_session(:imgsrv, pid)
 
-    Cv.ImageServer.upload(pid, imgdata)
+    {image, mime} = Cv.ImageServer.upload(pid, imgdata)
+    submission = Submissions.create_submission(
+      %{"image" => (if allow == "true", do: image, else: nil), "mime" => mime})
     Cv.ImageServer.subscribe(pid, id)
     Cv.ImageServer.process(pid)
 

@@ -3,6 +3,8 @@ defmodule Cv.ImageServer do
   require Logger
   require Mogrify
 
+  alias Cv.Methods
+
   # client
 
   def start_link(state) do
@@ -73,18 +75,24 @@ defmodule Cv.ImageServer do
     data = File.read!(image.path)
     File.rm(image.path)
 
+    #methods = [
+    #  {:EAST, "http://127.0.0.1:4010/process"},
+    #  {:AdvancedEAST, "http://127.0.0.1:4011/process"},
+    #  {:PixelLink, "http://127.0.0.1:4012/process"}
+    #]
+    methods = for method <- Methods.list_methods() do
+      {String.to_atom(method.name), method.url}
+    end
+
     state = %{data: data, mime: "image/png", name: upload.filename,
       subscribed: nil,
       out: %{},
       status: %{},
       ratings: %{},
-      methods: [
-        {:EAST, "http://127.0.0.1:4010/process"},
-        {:AdvancedEAST, "http://127.0.0.1:4011/process"},
-        {:PixelLink, "http://127.0.0.1:4012/process"}
-      ]}
+      methods: methods,
+      }
     #GenServer.cast(__MODULE__, :process)
-    {:reply, :ok, state}
+    {:reply, {state.data, state.mime}, state}
   end
 
   @impl true

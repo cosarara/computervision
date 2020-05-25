@@ -2,9 +2,14 @@
 <script>window.uid_token = "<%= @uid_token %>";</script>
 <script>window.uid = "<%= @uid %>";</script>
 
-<div>Submitted!</div>
+<h2>Submitted!</h2>
 <style>
 img { width: 500px; display: block }
+
+h3 {
+  margin-bottom: 0px;
+  margin-top: 10px;
+}
 
 .lds-spinner {
   color: official;
@@ -88,14 +93,14 @@ img { width: 500px; display: block }
 
 <div style="display: flex; flex-direction: column;">
   <div>
-    Submitted image:
+    Submitted image (might have been scaled down before processing):
     <img alt="submitted image"
          class="submitted"
          src="<%= Routes.page_path(@conn, :get) %>">
   </div>
   <%= for {method, _url} <- @methods do %>
     <div>
-      <%= method %>:
+      <h3><%= method %>:</h3>
       <%= case @status[method] do %>
         <% {:done} -> %>
           <div style="display: flex;">
