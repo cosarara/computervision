@@ -1,6 +1,7 @@
 defmodule Cv.ImageServer do
-  require Logger
   use GenServer
+  require Logger
+  require Mogrify
 
   # client
 
@@ -57,11 +58,22 @@ defmodule Cv.ImageServer do
 
   @impl true
   def handle_call({:upload, upload}, _from, _state) do
-    #data = 0
-    data = File.read!(upload.path)
-    #case File.read upload.path do
-    #  {:ok, body} ->
-    state = %{data: data, mime: upload.content_type, name: upload.filename,
+
+    #Temp.track!
+    #dir_path = Temp.mkdir! "mogrify"
+
+    image = Mogrify.open(upload.path) |> Mogrify.auto_orient()
+            |> Mogrify.resize_to_limit("1000x1000")
+            |> Mogrify.format("png") |> Mogrify.save
+
+    #Temp.cleanup
+
+    #data = File.read!(upload.path)
+    #mime = upload.content_type
+    data = File.read!(image.path)
+    File.rm(image.path)
+
+    state = %{data: data, mime: "image/png", name: upload.filename,
       subscribed: nil,
       out: %{},
       status: %{},
@@ -123,9 +135,13 @@ defmodule Cv.ImageServer do
     headers = [{"Content-type", "application/json"}]
     pid = self()
 
+    state = put_in(state.status,
+      (for {method, _url} <- state.methods, into: %{}, do: {method, {:running}}))
+
     for {method, url} <- state.methods do
+      #state = put_in(state.status[method], {:running})
       _task = Task.start_link(fn ->
-        GenServer.call(pid, {:method_started, method})
+        #GenServer.call(pid, {:method_started, method})
         case HTTPoison.post(url, json, headers, [recv_timeout: 60000]) do
           {:ok, resp} -> GenServer.call(pid, {:process_end, method, resp})
           {:error, e} -> GenServer.call(pid, {:handle_error, method, e})

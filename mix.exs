@@ -48,6 +48,7 @@ defmodule Cv.MixProject do
       {:rambo, "~> 0.3"},
       {:temp, "~> 0.4"},
       {:httpoison, "~> 1.6"},
+      {:mogrify, "~> 0.7.3"},
     ]
   end
 

@@ -13,6 +13,8 @@ defmodule CvWeb.PageController do
     state = Cv.ImageServer.get(pid)
     user_id = get_session(conn, :user_id)
     token = Phoenix.Token.sign(CvWeb.Endpoint, "user auth", user_id)
+    IO.inspect "thikning hard"
+    IO.inspect state.status
     render(conn, "submitted.html", methods: state.methods, status: state.status,
       ratings: state.ratings, uid_token: token, uid: user_id)
   end
