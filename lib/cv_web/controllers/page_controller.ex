@@ -47,8 +47,12 @@ defmodule CvWeb.PageController do
            |> put_session(:imgsrv, pid)
 
     {image, mime} = Cv.ImageServer.upload(pid, imgdata)
-    submission = Submissions.create_submission(
+    {:ok, submission} = Submissions.create_submission(
       %{"image" => (if allow == "true", do: image, else: nil), "mime" => mime})
+    #IO.inspect "kabum"
+    #IO.inspect submission
+    #IO.inspect submission.id
+    Cv.ImageServer.set_submission(pid, submission.id)
     Cv.ImageServer.subscribe(pid, id)
     Cv.ImageServer.process(pid)
 

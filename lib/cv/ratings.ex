@@ -55,6 +55,14 @@ defmodule Cv.Ratings do
     |> Repo.insert()
   end
 
+  def set_rating(submission, method, rating) do
+    Repo.insert!(
+      %Rating{submission_id: submission, method_id: method, rating: rating},
+      on_conflict: [set: [rating: rating]],
+      conflict_target: [:submission_id, :method_id]
+    )
+  end
+
   @doc """
   Updates a rating.
 

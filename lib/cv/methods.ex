@@ -37,6 +37,8 @@ defmodule Cv.Methods do
   """
   def get_method!(id), do: Repo.get!(Method, id)
 
+  def by_name!(name), do: Repo.get_by!(Method, name: name)
+
   @doc """
   Creates a method.
 

@@ -4,6 +4,8 @@ defmodule Cv.ImageServer do
   require Mogrify
 
   alias Cv.Methods
+  alias Cv.Ratings
+  alias Cv.Ratings.Rating
 
   # client
 
@@ -26,6 +28,10 @@ defmodule Cv.ImageServer do
 
   def process(pid) do
     GenServer.cast(pid, :process)
+  end
+
+  def set_submission(pid, id) do
+    GenServer.cast(pid, {:set_submission_id, id})
   end
 
   def subscribe(pid, id) do
@@ -90,6 +96,7 @@ defmodule Cv.ImageServer do
       status: %{},
       ratings: %{},
       methods: methods,
+      submission: nil,
       }
     #GenServer.cast(__MODULE__, :process)
     {:reply, {state.data, state.mime}, state}
@@ -166,8 +173,23 @@ defmodule Cv.ImageServer do
   end
 
   @impl true
+  def handle_cast({:set_submission_id, id}, state) do
+    {:noreply, put_in(state.submission, id)}
+  end
+
+  @impl true
   def handle_cast({:rate, method, rating}, state) do
     state = put_in(state.ratings[method], rating)
+    method_id = Methods.by_name!(Atom.to_string(method)).id
+    try do
+      {rating, _garbage} = Float.parse(rating)
+      rating = round(rating * 2)
+      IO.inspect :rating
+      IO.inspect rating
+      Ratings.set_rating(state.submission, method_id, rating)
+    rescue
+      e -> Logger.error("error saving rating: #{inspect(e)}")
+    end
     {:noreply, state}
   end
 end
