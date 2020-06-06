@@ -58,7 +58,7 @@ if (window.uid_token) {
     socket = new Socket("/socket", {params: {token: window.uid_token}})
     // Finally, connect to the socket:
     socket.connect()
-    socket.onMessage(() => console.log("message"))
+    //socket.onMessage((x) => console.log("message", x))
     socket.onClose(() => console.log("close"))
 
     //let channel = socket.channel()
@@ -66,9 +66,24 @@ if (window.uid_token) {
     // Now that you are connected, you can join channels with a topic:
     //let channel = socket.channel("notification:lobby", {})
     let channel = socket.channel("notification:"+window.uid, {})
+    document.channel = channel
     //let channel = socket.channel("user_socket:42", {})
     channel.join()
-      .receive("ok", resp => { console.log("Joined successfully", resp) })
+      .receive("ok", resp => {
+          console.log("Joined successfully", resp);
+          channel.push("get_status")
+              .receive("ok", resp => {
+                  let status = resp.status;
+                  console.log("got status", status);
+                  for (let id in status) {
+                      if (status[id] == "error") {
+                          console.log("error", id);
+                          let el = $(`.img-container[data-method-name=${id}]`);
+                          el.find(".lds-spinner").replaceWith("error");
+                      }
+                  }
+              })
+      })
       .receive("error", resp => { console.log("Unable to join", resp) })
 
     channel.on("reload", payload => {
@@ -87,5 +102,8 @@ if (window.uid_token) {
         //el.replaceWith(image);
         el.find(".lds-spinner").replaceWith(image);
     })
+    //channel.on("status", payload => {
+    //    console.log('status', payload);
+    //})
 }
 export default socket

@@ -12,12 +12,14 @@ defmodule CvWeb.PageController do
   end
 
   def submitted(conn, _params) do
-    pid = get_session(conn, :imgsrv)
-    state = Cv.ImageServer.get(pid)
     user_id = get_session(conn, :user_id)
+    #pid = get_session(conn, :imgsrv)
+    pid = Cv.ServerMap.get(user_id)
+    state = Cv.ImageServer.get(pid)
     token = Phoenix.Token.sign(CvWeb.Endpoint, "user auth", user_id)
-    IO.inspect "thikning hard"
-    IO.inspect state.status
+    #IO.inspect "thikning hard"
+    #IO.inspect state.status
+    #IO.inspect Cv.ServerMap.get(user_id)
     render(conn, "submitted.html", methods: state.methods, status: state.status,
       ratings: state.ratings, uid_token: token, uid: user_id)
   end
@@ -47,6 +49,8 @@ defmodule CvWeb.PageController do
            |> put_session(:imgsrv, pid)
 
     {image, mime} = Cv.ImageServer.upload(pid, imgdata)
+    #IO.inspect "hrmmmm"
+    #IO.inspect {image, mime}
     {:ok, submission} = Submissions.create_submission(
       %{"image" => (if allow == "true", do: image, else: nil), "mime" => mime})
     #IO.inspect "kabum"
@@ -55,6 +59,7 @@ defmodule CvWeb.PageController do
     Cv.ImageServer.set_submission(pid, submission.id)
     Cv.ImageServer.subscribe(pid, id)
     Cv.ImageServer.process(pid)
+    Cv.ServerMap.set(id, pid)
 
     redirect(conn, to: Routes.page_path(conn, :submitted))
   end

@@ -20,6 +20,7 @@ defmodule Cv.Application do
       # image service thing
       #{Cv.ImageServer, name: Cv.ImageServer}
       #Cv.ImageServer,
+      Cv.ServerMap,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

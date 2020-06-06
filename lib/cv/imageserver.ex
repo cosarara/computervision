@@ -58,7 +58,7 @@ defmodule Cv.ImageServer do
       try do
         CvWeb.Endpoint.broadcast("notification:#{state.subscribed}", "reload", %{})
       rescue
-        _ -> nil
+        _ -> IO.put("hrm")
       end
     end
     put_in(state.status[method], {:error, e})
