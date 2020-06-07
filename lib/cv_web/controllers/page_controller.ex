@@ -12,8 +12,8 @@ defmodule CvWeb.PageController do
   end
 
   def submitted(conn, _params) do
-    user_id = get_session(conn, :user_id)
     #pid = get_session(conn, :imgsrv)
+    user_id = get_session(conn, :user_id)
     pid = Cv.ServerMap.get(user_id)
     state = Cv.ImageServer.get(pid)
     token = Phoenix.Token.sign(CvWeb.Endpoint, "user auth", user_id)
@@ -33,7 +33,8 @@ defmodule CvWeb.PageController do
     IO.inspect "submit"
     #IO.inspect imgdata
 
-    pid = get_session(conn, :imgsrv)
+    user_id = get_session(conn, :user_id)
+    pid = Cv.ServerMap.get(user_id)
     pid = if !pid or not Process.alive?(pid) do
       {:ok, pid} = Cv.ImageServer.start_link([])
       pid
@@ -42,11 +43,12 @@ defmodule CvWeb.PageController do
     end
 
     id = gen_id()
+    Cv.ServerMap.set(id, pid)
     conn = conn
            |> put_session(:user_id, id)
            |> put_session(:allow, allow)
            |> put_session(:terms, "true")
-           |> put_session(:imgsrv, pid)
+           #|> put_session(:imgsrv, pid)
 
     {image, mime} = Cv.ImageServer.upload(pid, imgdata)
     #IO.inspect "hrmmmm"
@@ -59,7 +61,6 @@ defmodule CvWeb.PageController do
     Cv.ImageServer.set_submission(pid, submission.id)
     Cv.ImageServer.subscribe(pid, id)
     Cv.ImageServer.process(pid)
-    Cv.ServerMap.set(id, pid)
 
     redirect(conn, to: Routes.page_path(conn, :submitted))
   end
@@ -78,7 +79,8 @@ defmodule CvWeb.PageController do
   end
 
   def get(conn, _params) do
-    pid = get_session(conn, :imgsrv)
+    user_id = get_session(conn, :user_id)
+    pid = Cv.ServerMap.get(user_id)
     file = Cv.ImageServer.get(pid)
     conn = put_resp_content_type(conn, file.mime)
     resp(conn, 200, file.data)
@@ -88,14 +90,16 @@ defmodule CvWeb.PageController do
     #IO.inspect Cv.ImageServer.get(pid).out
     id = String.to_existing_atom(id)
     IO.inspect id
-    pid = get_session(conn, :imgsrv)
+    user_id = get_session(conn, :user_id)
+    pid = Cv.ServerMap.get(user_id)
     {img, mime} = Cv.ImageServer.get(pid).out[id]
     conn = put_resp_content_type(conn, mime)
     resp(conn, 200, img)
   end
 
   def rate(conn, %{"method" => method, "rating" => rating}) do
-    pid = get_session(conn, :imgsrv)
+    user_id = get_session(conn, :user_id)
+    pid = Cv.ServerMap.get(user_id)
     method = String.to_existing_atom(method)
     Cv.ImageServer.rate(pid, method, rating)
     IO.inspect Cv.ImageServer.get(pid).ratings
