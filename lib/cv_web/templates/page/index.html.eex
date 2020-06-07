@@ -1,5 +1,5 @@
 <section class="phx-hero">
-  <h1><%= gettext "Welcome to %{name}!", name: "CVaaS" %></h1>
+  <h1><%= gettext "Computer Vision as a Service", name: "CVaaS" %></h1>
 </section>
 
 <style>
