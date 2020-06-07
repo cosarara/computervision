@@ -89,6 +89,19 @@ h3 {
   }
 }
 
+
+.stars {
+  display: flex;
+}
+.img-container {
+  display: flex;
+}
+
+@media screen and (max-width: 800px) {
+  .img-container {
+    display: block;
+  }
+}
 </style>
 
 <div style="display: flex; flex-direction: column;">
@@ -103,7 +116,7 @@ h3 {
       <h3><%= method %>:</h3>
       <%= case @status[method] do %>
         <% {:done} -> %>
-          <div style="display: flex;">
+          <div class="img-container">
             <img alt="processed image"
                  src="<%= Routes.page_path(@conn, :out, method) %>">
             <div style="padding: 10px;">
@@ -113,7 +126,7 @@ h3 {
           </div>
         <% {:running} -> %>
           <%# (loading) %>
-          <div class="img-container" data-method-name="<%= method %>" style="display: flex;">
+          <div class="img-container" data-method-name="<%= method %>">
             <div class="lds-spinner" data-method-name="<%= method %>"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
             <div class="rating-wrapper" style="padding: 10px; display: none">
               How good was it?
@@ -146,5 +159,5 @@ h3 {
         {method: method, rating: currentRating, _csrf_token: csrf});
     }
   });
-  $(() => $(".lds-spinner").height($(".submitted").height()));
+  $(window).on("load", () => $(".lds-spinner").height(Math.max($(".submitted").height(), 200)));
 </script>

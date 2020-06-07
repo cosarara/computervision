@@ -25,6 +25,8 @@ defmodule CvWeb.Router do
     get "/out/:id", PageController, :out
     post "/rate", PageController, :rate
 
+    get "/tnc", PageController, :tnc
+
     resources "/methods", MethodController
     resources "/submissions", SubmissionController
     get "/submissions/img/:id", SubmissionController, :img

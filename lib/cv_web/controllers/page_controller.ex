@@ -106,4 +106,8 @@ defmodule CvWeb.PageController do
     conn
     |> resp(200, "")
   end
+
+  def tnc(conn, _params) do
+    render(conn, "tnc.html")
+  end
 end

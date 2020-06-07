@@ -6,6 +6,9 @@
 input[type=checkbox] {
   margin-right: 8px;
 }
+.example {
+  width: 100%;
+}
 </style>
 
 <!--
@@ -32,7 +35,9 @@ input[type=checkbox] {
   <div>
     <label>
   <%= checkbox f, :terms, [value: @terms, required: true] %>
-  <%= gettext("I agree to the Terms and Conditions TODO [3rd party, etc.]") %>
+  <%= gettext("I agree to the %{tnc}",
+              tnc: safe_to_string(link(gettext("Terms and Conditions"),
+                                  to: Routes.page_path(@conn, :tnc)))) |> raw() %>
     </label>
     <label>
   <%= checkbox f, :allow_use, [value: @allow_use] %>
@@ -41,3 +46,12 @@ input[type=checkbox] {
   </div>
   <%= submit "Submit" %>
 <% end %>
+
+<p>
+CVaaS lets you run <%= link("state of the art", to: "https://rrc.cvc.uab.es/") %> text detection algorithms on
+your own submitted images, to compare and rate them.
+</p>
+
+<img class="example" src="<%= Routes.static_path(@conn, "/images/exemple1.png") %>" alt="Example image"/>
+<img class="example" src="<%= Routes.static_path(@conn, "/images/exemple2.png") %>" alt="Example image"/>
+<img class="example" src="<%= Routes.static_path(@conn, "/images/exemple3.png") %>" alt="Example image"/>

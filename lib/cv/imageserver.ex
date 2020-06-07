@@ -71,7 +71,8 @@ defmodule Cv.ImageServer do
     #dir_path = Temp.mkdir! "mogrify"
 
     image = Mogrify.open(upload.path) |> Mogrify.auto_orient()
-            |> Mogrify.resize_to_limit("1000x1000")
+            #|> Mogrify.resize_to_limit("1000x1000")
+            |> Mogrify.resize_to_limit("720x720")
             |> Mogrify.format("png") |> Mogrify.save
 
     #Temp.cleanup
