@@ -22,16 +22,25 @@ defmodule CvWeb.NotificationChannel do
   @impl true
   def handle_in("get_status", _payload, socket) do
     pid = Cv.ServerMap.get(socket.assigns.user_id)
-    status = Cv.ImageServer.get(pid).status
-    IO.inspect "get_status"
-    IO.inspect status
-    status = for {method, s} <- status, into: %{} do
-      case s do
-        {:error, _e} -> {method, :error}
-        x -> {method, x}
+    IO.inspect({:uid, socket.assigns.user_id})
+    IO.inspect({:pid, pid})
+    if pid && Process.alive?(pid) do
+      status = Cv.ImageServer.get(pid).status
+      IO.inspect "get_status"
+      IO.inspect status
+      status = for {method, s} <- status, into: %{} do
+        case s do
+          {:error, _e} -> {method, :error}
+          #x -> {method, x}
+          {:running} -> {method, :running}
+          {:done} -> {method, :done}
+        end
       end
+      {:reply, {:ok, %{"status" => status}}, socket}
+    else
+      IO.inspect("ded")
+      {:reply, {:ok, %{"status" => %{}}}, socket}
     end
-    {:reply, {:ok, %{"status" => status}}, socket}
   end
 
   # It is also common to receive messages from the client and

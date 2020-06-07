@@ -58,7 +58,7 @@ defmodule Cv.ImageServer do
       try do
         CvWeb.Endpoint.broadcast("notification:#{state.subscribed}", "reload", %{})
       rescue
-        _ -> IO.put("hrm")
+        _ -> IO.puts("failed to broadcast error")
       end
     end
     put_in(state.status[method], {:error, e})
@@ -131,6 +131,7 @@ defmodule Cv.ImageServer do
         CvWeb.Endpoint.broadcast("notification:#{state.subscribed}", "image",
           %{"method" => method, "data" => image64, "mime" => mime})
       end
+      IO.inspect {:done, method}
       {:reply, nil, state}
     rescue
       e -> {:reply, nil, handle_error(state, method, e)}
