@@ -11,22 +11,6 @@ input[type=checkbox] {
 }
 </style>
 
-<!--
-<form method="POST" action="submit">
-  <div>
-    <label for="image">Choose an image file:</label>
-    <input type="file"
-           id="image" name="image"
-           accept="image/png, image/jpeg">
-  </div>
-<button><%= gettext("Submit") %></button>
-</form>
--->
-<% form_for @conn, Routes.page_path(@conn, :submit), fn f -> %>
-  <%= text_input f, :for %>
-  <%= submit "Submit" %>
-<% end %>
-
 <%= form_for @conn, Routes.page_path(@conn, :submit), [multipart: true], fn f -> %>
   <div>
   <%= label f, :image, gettext("Choose an image file") %>

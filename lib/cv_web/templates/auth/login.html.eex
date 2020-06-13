@@ -1,0 +1,7 @@
+<section class="phx-hero">
+  <h1><%= gettext "Admin Auth", name: "CVaaS" %></h1>
+</section>
+<%= form_for @conn, Routes.auth_path(@conn, :auth), fn f -> %>
+  <%= password_input f, :password %>
+  <%= submit "Submit" %>
+<% end %>

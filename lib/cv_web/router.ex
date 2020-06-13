@@ -25,8 +25,24 @@ defmodule CvWeb.Router do
     get "/out/:id", PageController, :out
     post "/rate", PageController, :rate
 
+    # terms and conditions
     get "/tnc", PageController, :tnc
 
+    get "/login", AuthController, :login
+    post "/auth", AuthController, :auth
+  end
+
+  defp authenticate(conn, _) do
+    if !get_session(conn, :is_admin) do
+      conn |> put_flash(:info, "You must be logged in") |> redirect(to: "/") |> halt()
+    else
+      conn
+    end
+  end
+
+  scope "/admin", CvWeb do
+    pipe_through [:browser, :authenticate]
+    get "/", PageController, :admin_index
     resources "/methods", MethodController
     resources "/submissions", SubmissionController
     get "/submissions/img/:id", SubmissionController, :img

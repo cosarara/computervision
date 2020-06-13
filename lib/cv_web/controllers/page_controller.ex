@@ -11,6 +11,10 @@ defmodule CvWeb.PageController do
       terms: get_session(conn, :terms))
   end
 
+  def admin_index(conn, _params) do
+    render(conn, "admin.html")
+  end
+
   def submitted(conn, _params) do
     #pid = get_session(conn, :imgsrv)
     user_id = get_session(conn, :user_id)

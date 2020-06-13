@@ -1,0 +1,8 @@
+<ul>
+  <li>
+    <%= link "Submissions", to: Routes.submission_path(@conn, :index) %>
+  </li>
+  <li>
+    <%= link "Methods", to: Routes.method_path(@conn, :index) %>
+  </li>
+</ul>
