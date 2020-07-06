@@ -110,6 +110,7 @@ h3 {
     <img alt="submitted image"
          class="submitted"
          src="<%= Routes.page_path(@conn, :get) %>">
+    Please rate each method from half to 5 stars:
   </div>
   <%= for {method, _url} <- @methods do %>
     <div>
@@ -140,6 +141,7 @@ h3 {
       <% end %>
     </div>
   <% end %>
+  <%= link(gettext("Submit another image"), to: Routes.page_path(@conn, :index)) %>
 </div>
 
 <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/jquery-3.5.1.min.js") %>"></script>
